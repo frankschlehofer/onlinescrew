@@ -1,0 +1,26 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch index.js"
+  },
+  "keywords": [],
+  "author": "Frank Schlehofer",
+  "license": "ISC",
+  "description": "Server for online screw",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frankschlehofer/onlinescrew.git"
+  },
+  "bugs": {
+    "url": "https://github.com/frankschlehofer/onlinescrew/issues"
+  },
+  "homepage": "https://github.com/frankschlehofer/onlinescrew#readme",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1"
+  }
+}
