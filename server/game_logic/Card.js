@@ -38,7 +38,7 @@ class Card {
             case 'J':
                 return 11;
             default:
-                return this.rank;
+                return parseInt(this.rank, 10); 
         }
     }
 }

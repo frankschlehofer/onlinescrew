@@ -19,12 +19,20 @@ class Player {
         return this.card;
     }
 
+    getCardRank() {
+        return this.card.rank;
+    }
+
     removeCard() {
         this.card = null;
     }
 
-    resetLives(lives) {
+    setLives(lives) {
         this.lives = lives;
+    }
+
+    getLives() {
+        return this.lives;
     }
 }
 
