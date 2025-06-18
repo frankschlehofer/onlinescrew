@@ -14,6 +14,14 @@ class Player {
     receiveCard(card) {
         this.card = card
     }
+
+    getCard() {
+        return this.card;
+    }
+
+    removeCard() {
+        this.card = null;
+    }
 }
 
 export default Player

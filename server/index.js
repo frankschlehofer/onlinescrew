@@ -22,6 +22,9 @@ const pokerGame = new Game(3);
 
 pokerGame.addPlayer("Gavin");
 pokerGame.addPlayer("Matthew");
+pokerGame.addPlayer("Harrison");
+pokerGame.addPlayer("Colin");
+pokerGame.addPlayer("Tristan");
 
 pokerGame.startGame(); // This will run the logic defined in your classes.
 

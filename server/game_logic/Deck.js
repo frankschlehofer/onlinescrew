@@ -31,6 +31,11 @@ class Deck {
         return this.cards.pop();
     }
 
+    numRemainingCards() {
+      console.log(`Num remaining cards: ${this.cards.length}`)
+      return this.cards.length;
+    }
+
 }
 
 export default Deck
