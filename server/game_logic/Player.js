@@ -22,6 +22,10 @@ class Player {
     removeCard() {
         this.card = null;
     }
+
+    resetLives(lives) {
+        this.lives = lives;
+    }
 }
 
 export default Player

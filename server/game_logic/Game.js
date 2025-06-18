@@ -42,6 +42,8 @@ class Game {
     startGame() {
         console.log("A new game is starting. All lives are reset");
 
+        this.prepareGame();
+
         // Start game loop. Game continues until only one player remains
         while (this.playersInCount > 1) {
 
@@ -71,6 +73,16 @@ class Game {
 
         const winner = this.determineWinner();
         console.log(`Winner is ${winner.name}`);
+    }
+
+    // Prepares for a new game. Resets lives, cards, deck
+    prepareGame() {
+        this.resetDeck();
+        for (let i = 0; i < this.playerCount; i++) {
+            const player = this.players[i];
+            player.removeCard();
+            player.resetLives(this.starting_lives)
+        }
     }
 
     // Helper function to determine if the deck contains enough cards to start a round
@@ -121,32 +133,77 @@ class Game {
     // Core of the game logic. Determines who loses a life at the end of the round
     determineOutcome() {
         console.log("Evaluating round");
-        let lowPlayer = this.players[this.dealerIndex];
-        let lowCard = lowPlayer.getCard();
+        // let lowPlayer = this.players[this.dealerIndex];
+        // let lowCard = lowPlayer.getCard();
         
-        // Determine loser
+        // // Determine loser
+        // for (let i = 0; i < this.playerCount; i++) {
+        //     const player = this.players[i];
+        //     if (!player.isOut) {
+        //         let curCard = player.getCard()
+        //         if (lowCard.compareTo(curCard) > 0) {
+        //             lowCard = curCard
+        //             lowPlayer = player;
+        //         }
+        //     }
+        // }
+
+        // console.log(`Player: ${lowPlayer.name} loses a life`);
+
+        // // Subtract life or remove from game. 
+        // if (lowPlayer.lives == 1) {
+        //     lowPlayer.lives = 0;
+        //     lowPlayer.isOut = true;
+        //     this.playersInCount--;
+        //     console.log(`Player: ${lowPlayer.name} is out`);
+        // }
+        // else {
+        //     lowPlayer.lives--;
+        // }
+
+        // Define a mapping from the ranks of cards in play to the number of their appearances
+        const rankCounts = new Map();
         for (let i = 0; i < this.playerCount; i++) {
             const player = this.players[i];
             if (!player.isOut) {
-                let curCard = player.getCard()
-                if (lowCard.compareTo(curCard) > 0) {
-                    lowCard = curCard
-                    lowPlayer = player;
-                }
+                const rank = player.card.getRankNum();
+                rankCounts.set(rank, (rankCounts.get(rank) || 0) + 1);
             }
         }
 
-        console.log(`Player: ${lowPlayer.name} loses a life`);
+        // Extract the counts and ranks from this mapping into arrays
+        const counts = Array.from(rankCounts.values());
+        const ranks = Array.from(rankCounts.keys());
 
-        // Subtract life or remove from game. 
-        if (lowPlayer.lives == 1) {
-            lowPlayer.lives = 0;
-            lowPlayer.isOut = true;
-            this.playersInCount--;
-            console.log(`Player: ${lowPlayer.name} is out`);
+        // Determine the precense of quad cards
+        if (counts.includes(4)) {
+            const quadRank = ranks.find(rank => rankCounts.get(rank) === 4);
+            players.forEach(p => {
+                this.removePlayer(p);
+            });
+            console.log(`QUAD ${quadRank}s`)
         }
+        // Determine trips
+        else if (counts.includes(3)) {
+            const tripRank = ranks.find(rank => rankCounts.get(rank) === 3);
+            const minLives = Math.min(...players.map(p => p.lives));
+            const losers = players.filter(p => p.lives === minLives);
+    
+            losers.forEach(loser => {
+                if (loser.lives == 1) {
+                    this.removePlayer(loser);
+                }
+                else {
+                    loser.lives--;
+                }
+            });
+    
+            const loserNames = losers.map(l => l.name).join(', ');
+            console.log(`TRIP ${tripRank}s! The player(s) with the lowest lives (${loserNames}) lose a life.`)
+        }
+        // Default case. Lowest card loses aside from pairs
         else {
-            lowPlayer.lives--;
+            
         }
     }
 
@@ -156,11 +213,19 @@ class Game {
         return this.players[this.dealerIndex];
     }
 
+    // Helper for cleanup at the end of round
     cleanUp() {
         for (let i = 0; i < this.playerCount; i++) {
             const player = this.players[i];
             player.removeCard();
         }
+    }
+
+    removePlayer(player) {
+        player.lives = 0;
+        player.isOut = true;
+        this.playersInCount--;
+        console.log(`Player: ${player.name} is out`);
     }
 
 }
