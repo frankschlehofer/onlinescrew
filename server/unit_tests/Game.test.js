@@ -87,7 +87,7 @@ describe('Game.determineOutcome', () => {
         });
     });
 
-    describe('Special Rule: Trip Cards', () => {
+    describe('Special Rule: Trip Cards | One loses', () => {
         it('should make the player with the lowest lives lose a life', () => {
             // Arrange
             const players = [
@@ -106,6 +106,30 @@ describe('Game.determineOutcome', () => {
 
             // Assert
             expect(game.players.find(p => p.name === 'Diana').getLives()).toBe(1);
+            expect(game.players.find(p => p.name === 'Charlie').getLives()).toBe(2);
+        });
+    });
+
+    describe('Special Rule: Trip Cards | Multiple lose', () => {
+        it('should make the players with the lowest lives lose a life', () => {
+            // Arrange
+            const players = [
+                createPlayerAndDeal('Alice', 'J', 3),
+                createPlayerAndDeal('Bob', 'J', 2),
+                createPlayerAndDeal('Charlie', '5', 2),
+                createPlayerAndDeal('Diana', 'J', 2),
+            ];
+            const game = new Game(3);
+            game.players = players;
+            game.playerCount = players.length;
+            game.playersInCount = players.length;
+
+            // Act
+            game.determineOutcome();
+
+            // Assert
+            expect(game.players.find(p => p.name === 'Diana').getLives()).toBe(1);
+            expect(game.players.find(p => p.name === 'Bob').getLives()).toBe(1);
             expect(game.players.find(p => p.name === 'Charlie').getLives()).toBe(2);
         });
     });

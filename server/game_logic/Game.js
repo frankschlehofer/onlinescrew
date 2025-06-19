@@ -1,5 +1,8 @@
 import Deck from './Deck.js'
 import Player from './Player.js'
+import promptSync from 'prompt-sync';
+
+const prompt = promptSync();
 
 class Game {
     constructor(starting_lives) {
@@ -48,6 +51,7 @@ class Game {
         while (this.playersInCount > 1) {
 
             console.log('\n\n --- New Round ---\n\n')
+
             // Check if deck contains enough cards to start round, if not, reset deck and reshuffle
             if (!this.canRoundStart()) {
                 this.resetDeck();
@@ -56,11 +60,16 @@ class Game {
             // Advance the dealer. If first round, will choose a random index to start for now
             this.advanceDealer()
 
+            console.log('Current Dealer Index: ', this.dealerIndex);
+
             // Deal one card to each player, starting at the current 'dealer'
             this.dealCards();
 
             // Log the hands to the console to check
-            this.players.forEach(p => console.log(`${p.card == null ? "" : `${p.name} has ${p.card.toString()}`}`));
+            this.players.forEach(p => console.log(`${p.card == null ? "" : `${this.players.indexOf(p)} : ${p.name} has ${p.card.toString()}`}`));
+
+            // Begin card swapping. This is the main player interaction
+            this.beginSwapping();
             
             // For now, just take lowest card and subtract a life
             this.determineOutcome();
@@ -221,6 +230,54 @@ class Game {
         else {
             player.lives--;
         }
+    }
+
+    // Defines the round of swapping for the players. Begins at dealer and ends when everyone gets a chance
+    beginSwapping() {
+        // Loop through all players, starting at dealer
+        for (let i = 0; i < this.playerCount; i++) {
+            const index = (this.dealerIndex + i) % this.playerCount;
+
+            const player = this.players[index];
+            console.log('Current swapping index: ', index)
+            // Only if the player is still in prompt for swap
+            if (!player.isOut) {
+                // If it is the last player, they can swap with the deck
+                if (this.isLastPlayer(index)) {
+                    let choice = prompt(`Do you want to swap your ${player.card.toString()} with the deck? (y/n)`);
+                    if (choice = 'y') {
+                        const card = this.deck.deal();
+                        player.receiveCard(card)
+                        console.log(`Deck pull: ${card.toString()}`);
+                    }   
+                }
+                else {
+                    let choice = prompt(`Do you want to swap your ${player.card.toString()} with the next player? (y/n)` );
+                    if (choice == 'y') {
+                        let nextIndex = index + 1;
+                        let nextPlayer = this.players[nextIndex % this.playerCount]
+                        while (nextPlayer.isOut) {
+                            nextPlayer = this.players[++nextIndex % this.playerCount]
+                        }
+                        const temp = nextPlayer.card
+                        nextPlayer.receiveCard(player.card)
+                        player.receiveCard(temp)
+                        console.log(`Card received: ${temp.toString()}`);
+                    } 
+                }
+            }
+        }
+    }
+
+    // Very smart function to determine of a player is before the dealer in the array/table arrangement
+    // Atleast I didnt chatgpt it
+    isLastPlayer(index) {
+        console.log('Last player? index/dealerindex', index, this.dealerIndex)
+        console.log('Last player?', (this.dealerIndex - 1) % this.playerCount)
+        if ((this.dealerIndex - 1) % this.playerCount == index || (this.dealerIndex == 0 && index == this.playerCount - 1)) {
+            return true
+        }
+        return false
     }
 
 }
