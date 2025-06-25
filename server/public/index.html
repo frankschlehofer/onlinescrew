@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket.IO Test Client</title>
+</head>
+<body>
+    <input id="nameInput" placeholder="Enter your name" />
+    <h1>Test Client</h1>
+    <button id="createGameBtn">Create Game</button>
+    <hr>
+    <h2>Join a Game</h2>
+
+    <input id="roomInput" placeholder="Enter Room ID" />
+    <button id="joinGameBtn">Join Game</button>
+
+    <h2>Lobby</h2>
+    <ul id="playerList"></ul>
+
+    <hr>
+    <h2>Game Info</h2>
+    <p>Your Socket ID: <b id="socketId"></b></p>
+    <p>Room ID: <b id="roomId"></b></p>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        const socket = io("http://localhost:3000");
+
+        const socketIdElem = document.getElementById('socketId');
+        const roomIdElem = document.getElementById('roomId');
+        const createGameBtn = document.getElementById('createGameBtn');
+        
+        const roomCodeInput = document.getElementById('roomCodeInput');
+
+        const nameInput = document.getElementById('nameInput');
+        const roomInput = document.getElementById('roomInput');
+        const joinGameBtn = document.getElementById('joinGameBtn');
+        const playerListElem = document.getElementById('playerList');
+
+        socket.on('connect', () => {
+            socketIdElem.textContent = socket.id;
+        });
+
+        // Listen for the server's response
+        socket.on('roomCreated', ({ roomId }) => {
+            console.log(`Server created room: ${roomId}`);
+            roomIdElem.textContent = roomId;
+        });
+
+        socket.on('roomJoined', ({ roomId }) => {
+            console.log(`Joined room: ${roomId}`);
+            roomIdElem.textContent = roomId;
+        });
+
+        joinGameBtn.addEventListener('click', () => {
+            const roomId = roomInput.value;
+            const playerName = nameInput.value;
+            if (roomId && playerName) {
+                socket.emit('joinRoom', { roomId, playerName });
+            }
+        });
+
+        createGameBtn.addEventListener('click', () => {
+            console.log('Emitting createRoom event...');
+            const playerName = nameInput.value;
+            if (playerName) {
+                socket.emit('createRoom', { playerName });
+            }
+            
+        });
+
+        const updateLobby = (lobbyData) => {
+            console.log('Lobby updated!', lobbyData);
+            roomIdElem.textContent = lobbyData.roomId;
+            playerListElem.innerHTML = ''; // Clear the list
+            lobbyData.players.forEach(player => {
+                const li = document.createElement('li');
+                // Add a (Host) label for the host
+                li.textContent = `${player.name} ${player.id === lobbyData.hostId ? '(Host)' : ''}`;
+                playerListElem.appendChild(li);
+            });
+        };
+
+        socket.on('joinSuccess', updateLobby);
+        socket.on('lobbyUpdate', updateLobby);
+        socket.on('joinError', (message) => alert(message));
+    </script>
+</body>
+</html>
