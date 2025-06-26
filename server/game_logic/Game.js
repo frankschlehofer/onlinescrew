@@ -12,6 +12,7 @@ class Game {
         this.playerCount = 0;
         this.playersInCount = 0;
         this.dealerIndex = null;
+        this.currentTurnIndex = null
         this.starting_lives = starting_lives;
     }
 
@@ -42,46 +43,24 @@ class Game {
      *              - In the event that all cards match except for a king, the king loses a life
      * 
      */
-    startGame() {
-        console.log("A new game is starting. All lives are reset");
 
-        this.prepareGame();
+    startRound() {
+        console.log("New Round Begins. Dealer is advanced and cards are dealt");
 
-        // Start game loop. Game continues until only one player remains
-        while (this.playersInCount > 1) {
-
-            console.log('\n\n --- New Round ---\n\n')
-
-            // Check if deck contains enough cards to start round, if not, reset deck and reshuffle
-            if (!this.canRoundStart()) {
-                this.resetDeck();
-            }
-
-            // Advance the dealer. If first round, will choose a random index to start for now
-            this.advanceDealer()
-
-            console.log('Current Dealer Index: ', this.dealerIndex);
-
-            // Deal one card to each player, starting at the current 'dealer'
-            this.dealCards();
-
-            // Log the hands to the console to check
-            this.players.forEach(p => console.log(`${p.card == null ? "" : `${this.players.indexOf(p)} : ${p.name} has ${p.card.toString()}`}`));
-
-            // Begin card swapping. This is the main player interaction
-            this.beginSwapping();
-            
-            // For now, just take lowest card and subtract a life
-            this.determineOutcome();
-
-            // Clean up for end of round. Just removes card from players hand
-            this.cleanUp()
+        // Check if deck contains enough cards to start round, if not, reset deck and reshuffle
+        if (!this.canRoundStart()) {
+            this.resetDeck();
         }
 
-        // Determine winner
+        // Advance the dealer. If first round, will choose a random index to start for now
+        this.advanceDealer()
 
-        const winner = this.determineWinner();
-        console.log(`Winner is ${winner.name}`);
+        // Deal one card to each player, starting at the current 'dealer'
+        this.dealCards();
+
+        // Log the hands to the console to check
+        this.players.forEach(p => console.log(`${p.card == null ? "" : `${this.players.indexOf(p)} : ${p.name} has ${p.card.toString()}`}`));
+
     }
 
     // Prepares for a new game. Resets lives, cards, deck
@@ -92,6 +71,58 @@ class Game {
             player.removeCard();
             player.setLives(this.starting_lives)
         }
+    }
+
+    // Defines the round of swapping for the players. Begins at dealer and ends when everyone gets a chance
+    beginSwapping() {
+        // Loop through all players, starting at dealer
+        for (let i = 0; i < this.playerCount; i++) {
+            const index = (this.dealerIndex + i) % this.playerCount;
+
+            const player = this.players[index];
+            console.log('Current swapping index: ', index)
+            // Only if the player is still in prompt for swap
+            if (!player.isOut) {
+                // If it is the last player, they can swap with the deck
+                if (this.isLastPlayer(index)) {
+                    let choice = prompt(`Do you want to swap your ${player.card.toString()} with the deck? (y/n)`);
+                    if (choice = 'y') {
+                        const card = this.deck.deal();
+                        player.receiveCard(card)
+                        console.log(`Deck pull: ${card.toString()}`);
+                    }   
+                }
+                else {
+                    let choice = prompt(`Do you want to swap your ${player.card.toString()} with the next player? (y/n)` );
+                    if (choice == 'y') {
+                        let nextIndex = index + 1;
+                        let nextPlayer = this.players[nextIndex % this.playerCount]
+                        while (nextPlayer.isOut) {
+                            nextPlayer = this.players[++nextIndex % this.playerCount]
+                        }
+                        const temp = nextPlayer.card
+                        nextPlayer.receiveCard(player.card)
+                        player.receiveCard(temp)
+                        console.log(`Card received: ${temp.toString()}`);
+                    } 
+                }
+            }
+        }
+    }
+
+    // Method for controlling a singular action a player takes
+    processPlayerAction(actingPlayerIndex, action) {
+        // 'action' will be an object like { type: 'swap', targetIndex: 3 }
+        if (actingPlayerIndex !== this.currentTurnIndex) {
+            console.error("Not your turn!");
+            return; // It's not this player's turn to act.
+        }
+    
+        // Logic for a single swap
+        console.log(`${this.players[actingPlayerIndex].name} is performing an action.`);
+    
+        // --- After processing, advance to the next player ---
+        this.advanceTurn();
     }
 
     // Helper function to determine if the deck contains enough cards to start a round
@@ -137,6 +168,9 @@ class Game {
         while (this.players[this.dealerIndex].isOut) { 
             this.dealerIndex = (this.dealerIndex + 1) % this.playerCount;
         }
+
+        // Turn begins at dealer index
+        this.currentTurnIndex = this.dealerIndex
     }
 
     // Core of the game logic. Determines who loses a life at the end of the round
@@ -232,42 +266,7 @@ class Game {
         }
     }
 
-    // Defines the round of swapping for the players. Begins at dealer and ends when everyone gets a chance
-    beginSwapping() {
-        // Loop through all players, starting at dealer
-        for (let i = 0; i < this.playerCount; i++) {
-            const index = (this.dealerIndex + i) % this.playerCount;
-
-            const player = this.players[index];
-            console.log('Current swapping index: ', index)
-            // Only if the player is still in prompt for swap
-            if (!player.isOut) {
-                // If it is the last player, they can swap with the deck
-                if (this.isLastPlayer(index)) {
-                    let choice = prompt(`Do you want to swap your ${player.card.toString()} with the deck? (y/n)`);
-                    if (choice = 'y') {
-                        const card = this.deck.deal();
-                        player.receiveCard(card)
-                        console.log(`Deck pull: ${card.toString()}`);
-                    }   
-                }
-                else {
-                    let choice = prompt(`Do you want to swap your ${player.card.toString()} with the next player? (y/n)` );
-                    if (choice == 'y') {
-                        let nextIndex = index + 1;
-                        let nextPlayer = this.players[nextIndex % this.playerCount]
-                        while (nextPlayer.isOut) {
-                            nextPlayer = this.players[++nextIndex % this.playerCount]
-                        }
-                        const temp = nextPlayer.card
-                        nextPlayer.receiveCard(player.card)
-                        player.receiveCard(temp)
-                        console.log(`Card received: ${temp.toString()}`);
-                    } 
-                }
-            }
-        }
-    }
+    
 
     // Very smart function to determine of a player is before the dealer in the array/table arrangement
     // Atleast I didnt chatgpt it

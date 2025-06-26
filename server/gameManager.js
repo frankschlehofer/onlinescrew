@@ -20,7 +20,8 @@ export function createGame(hostSocket, playerName, callback) {
 
     activeGames.set(roomId, room);
     console.log(`[Game Manager] New room created by ${hostSocket.id}: ${roomId}`);
-    callback({ roomId }); // Send the new room ID back
+    // Send the new room ID back
+    callback({ roomId }); 
 }
 
 export function joinGame(socket, roomId, playerName, callback) {
@@ -28,11 +29,10 @@ export function joinGame(socket, roomId, playerName, callback) {
         callback({ success: false, message: 'Room not found.' });
         return;
     }
-    
     const room = activeGames.get(roomId);
     socket.join(roomId);
     room.players.push({ id: socket.id, name: playerName });
 
-    console.log(`[Game Manager] <span class="math-inline">\{playerName\} \(</span>{socket.id}) joined room ${roomId}`);
+    console.log(`[Game Manager] ${playerName} : ${socket.id}) joined room ${roomId}`);
     callback({ success: true, lobbyData: room });
 }

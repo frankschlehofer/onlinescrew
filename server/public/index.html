@@ -4,17 +4,20 @@
     <title>Socket.IO Test Client</title>
 </head>
 <body>
-    <input id="nameInput" placeholder="Enter your name" />
+    
     <h1>Test Client</h1>
+    <input id="nameInput" placeholder="Enter Name" />
     <button id="createGameBtn">Create Game</button>
     <hr>
     <h2>Join a Game</h2>
 
     <input id="roomInput" placeholder="Enter Room ID" />
     <button id="joinGameBtn">Join Game</button>
-
+    <button id="startGameBtn" style="display: none;">Start Game</button>
     <h2>Lobby</h2>
     <ul id="playerList"></ul>
+
+    <button id="startGameBtn" style="display: none;">Start Game</button>
 
     <hr>
     <h2>Game Info</h2>
@@ -26,6 +29,9 @@
         const socket = io("http://localhost:3000");
 
         const socketIdElem = document.getElementById('socketId');
+        // Variable to store our own ID
+        let socketId = null; 
+
         const roomIdElem = document.getElementById('roomId');
         const createGameBtn = document.getElementById('createGameBtn');
         
@@ -35,9 +41,11 @@
         const roomInput = document.getElementById('roomInput');
         const joinGameBtn = document.getElementById('joinGameBtn');
         const playerListElem = document.getElementById('playerList');
+        const startGameBtn = document.getElementById('startGameBtn')
 
         socket.on('connect', () => {
             socketIdElem.textContent = socket.id;
+            socketId = socket.id
         });
 
         // Listen for the server's response
@@ -60,13 +68,18 @@
         });
 
         createGameBtn.addEventListener('click', () => {
-            console.log('Emitting createRoom event...');
+            console.log('Emitting createRoom event');
             const playerName = nameInput.value;
             if (playerName) {
                 socket.emit('createRoom', { playerName });
             }
             
         });
+
+        startGameBtn.addEventListener('click', () => {
+            console.log('Emitting startGame event');
+            
+        })
 
         const updateLobby = (lobbyData) => {
             console.log('Lobby updated!', lobbyData);
@@ -78,6 +91,14 @@
                 li.textContent = `${player.name} ${player.id === lobbyData.hostId ? '(Host)' : ''}`;
                 playerListElem.appendChild(li);
             });
+
+            if (socketId === lobbyData.hostId) {
+                console.log("I am the host. Showing the Start button.");
+                startGameBtn.style.display = 'block'; // Show the button
+            } else {
+                console.log("I am NOT the host. Hiding the Start button.");
+                startGameBtn.style.display = 'none'; // Keep the button hidden
+            }
         };
 
         socket.on('joinSuccess', updateLobby);
