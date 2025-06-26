@@ -6,7 +6,7 @@ import http from 'http';
 import { Server } from 'socket.io'
 
 import Game from './game_logic/Game.js';
-import { createGame, joinGame } from './gameManager.js';
+import { createGame, joinGame, startGame } from './gameManager.js';
 
 // Extract necessary environment variables
 dotenv.config()
@@ -48,9 +48,13 @@ io.on('connection', (socket) => {
     });
 
     // Starting game by host. This initiates the round structure, where rounds continue until one winner remains
-    // Therefore
-    socket.on('startGame', () => {
-
+    socket.on('startGame', ({ roomId, startingLives }) => {
+        console.log(`${roomId}'s game is starting`)
+        startGame(roomId, startingLives, (response) => {
+          if (response.success) {
+            socket.to(roomId).emit('gameStateUpdate', response.gameState);
+          }
+        })
     })
 
     socket.on('disconnect', () => {

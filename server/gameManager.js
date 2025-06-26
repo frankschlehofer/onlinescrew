@@ -1,5 +1,7 @@
 // gameManager.js
 
+import Game from './game_logic/Game.js'
+
 // A mapping from unique game id's to game instances. Used to track all running games
 const activeGames = new Map();
 
@@ -16,6 +18,7 @@ export function createGame(hostSocket, playerName, callback) {
         hostId: hostSocket.id,
         players: [{ id: hostSocket.id, name: playerName }],
         state: 'LOBBY',
+        gameInstance: null
     };
 
     activeGames.set(roomId, room);
@@ -35,4 +38,20 @@ export function joinGame(socket, roomId, playerName, callback) {
 
     console.log(`[Game Manager] ${playerName} : ${socket.id}) joined room ${roomId}`);
     callback({ success: true, lobbyData: room });
+}
+
+export function startGame(roomId, startingLives, callback) {
+
+    // Call Game constructor to initalize game object
+    const room = activeGames.get(roomId);
+    room.gameInstance = new Game(startingLives)
+
+    // Add players into game. Sets their lives to the startingLives variable
+    room.gameInstance.setPlayers(room.players);
+
+    // Begin first round. Each player receives their card and first dealer index is set
+    room.gameInstance.startRound();
+
+    // Send the lobbyData back, including the updated gameInstance information.
+    callback({ succes: true, gameState: room.gameInstance.getGameState() })
 }

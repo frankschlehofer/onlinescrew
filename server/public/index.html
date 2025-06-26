@@ -59,6 +59,11 @@
             roomIdElem.textContent = roomId;
         });
 
+        socket.on('gameStateUpdate', (gameState) => {
+            console.log('--- GAME STATE UPDATE ---');
+            console.log(gameState);
+        });
+
         joinGameBtn.addEventListener('click', () => {
             const roomId = roomInput.value;
             const playerName = nameInput.value;
@@ -78,7 +83,9 @@
 
         startGameBtn.addEventListener('click', () => {
             console.log('Emitting startGame event');
-            
+            roomId = roomIdElem.textContent
+            startingLives = 3
+            socket.emit('startGame', { roomId, startingLives })
         })
 
         const updateLobby = (lobbyData) => {
@@ -100,6 +107,7 @@
                 startGameBtn.style.display = 'none'; // Keep the button hidden
             }
         };
+
 
         socket.on('joinSuccess', updateLobby);
         socket.on('lobbyUpdate', updateLobby);

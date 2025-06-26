@@ -16,11 +16,19 @@ class Game {
         this.starting_lives = starting_lives;
     }
 
-    addPlayer(name) {
-        const player = new Player(name, this.starting_lives);
-        this.players.push(player);
+    // Receives object player of type { id: int, name: String }
+    addPlayer(player) {
+        console.log(`Adding player: ${player.name} to game`)
+        const newPlayer = new Player(player.id, player.name, this.starting_lives);
+        this.players.push(newPlayer);
         this.playerCount++;
         this.playersInCount++;
+    }
+
+    setPlayers(players) {
+        for (let i = 0; i < players.length; i++) {
+            this.addPlayer(players[i]);
+        }
     }
 
     /*
@@ -71,6 +79,23 @@ class Game {
             player.removeCard();
             player.setLives(this.starting_lives)
         }
+    }
+
+    getGameState() {
+        return {
+            // We don't send the full player objects with methods, just the data.
+            players: this.players.map(p => ({
+                name: p.name,
+                lives: p.lives,
+                isOut: p.isOut,
+                // We only send the card if it's the current user, or for debugging.
+                // For now, let's send it for everyone to make testing easy.
+                card: p.getCard(),
+            })),
+            currentTurnIndex: this.currentTurnIndex,
+            lastTurnIndex: this.dealerIndex + (this.playerCount - 1) % this.playerCount
+            // You can add more state here later, like 'gamePhase: "SWAPPING"'
+        };
     }
 
     // Defines the round of swapping for the players. Begins at dealer and ends when everyone gets a chance

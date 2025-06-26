@@ -4,7 +4,8 @@
  * In Screw Your Neighbor, every player only ever has one card in their hand
  */
 class Player {
-    constructor(name, lives) {
+    constructor(id, name, lives) {
+        this.id = id
         this.name = name
         this.card = null
         this.lives = lives
