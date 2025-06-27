@@ -28,6 +28,10 @@
     <p>Current Turn: <b id="currentTurn"></b></p>
     <p>Current Dealer: <b id="dealer"></b></p>
 
+    <button id="swapCardBtn" style="display: none;">Swap</button>
+    <button id="skipSwapBtn" style="display: none;">Skip</button>
+    <button id="deckCardBtn" style="display: none;">Deck</button>
+
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
@@ -51,6 +55,10 @@
         const heldCardElem = document.getElementById('heldCard')
         const dealerElem = document.getElementById('dealer')
         const currentTurnElem = document.getElementById('currentTurn')
+
+        const swapCardBtn = document.getElementById('swapCardBtn')
+        const skipSwapBtn = document.getElementById('skipSwapBtn')
+        const deckCardBtn = document.getElementById('swapCardBtn')
 
         socket.on('connect', () => {
             socketIdElem.textContent = socket.id;
@@ -122,11 +130,18 @@
                 console.log('Cur id: ', players[i].id)
                 if (players[i].id == socketId) {
                     heldCardElem.textContent = players[i].card
-                    break;
                 }
             }
-            dealerElem.textContent = gameState.dealerIndex
-            currentTurnElem.textContent = gameState.currentTurnIndex
+            dealerElem.textContent = players[gameState.dealerIndex].name
+            currentTurnElem.textContent = players[gameState.currentTurnIndex].name
+            if (socketId == players[gameState.currentTurnIndex].id) {
+                deckCardBtn.style.display = 'block'
+                skipSwapBtn.style.display = 'block'
+            }
+            else {
+                deckCardBtn.style.display = 'none'
+                skipSwapBtn.style.display = 'none'
+            }
         };
 
         socket.on('gameStateUpdate', updateGameState);
