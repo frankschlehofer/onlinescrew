@@ -24,6 +24,11 @@
     <p>Your Socket ID: <b id="socketId"></b></p>
     <p>Room ID: <b id="roomId"></b></p>
 
+    <p>Card: <b id="heldCard"></b></p>
+    <p>Current Turn: <b id="currentTurn"></b></p>
+    <p>Current Dealer: <b id="dealer"></b></p>
+
+
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
         const socket = io("http://localhost:3000");
@@ -43,6 +48,10 @@
         const playerListElem = document.getElementById('playerList');
         const startGameBtn = document.getElementById('startGameBtn')
 
+        const heldCardElem = document.getElementById('heldCard')
+        const dealerElem = document.getElementById('dealer')
+        const currentTurnElem = document.getElementById('currentTurn')
+
         socket.on('connect', () => {
             socketIdElem.textContent = socket.id;
             socketId = socket.id
@@ -59,10 +68,7 @@
             roomIdElem.textContent = roomId;
         });
 
-        socket.on('gameStateUpdate', (gameState) => {
-            console.log('--- GAME STATE UPDATE ---');
-            console.log(gameState);
-        });
+       
 
         joinGameBtn.addEventListener('click', () => {
             const roomId = roomInput.value;
@@ -108,7 +114,22 @@
             }
         };
 
+        const updateGameState = (gameState) => {
+            console.log('--- GAME STATE UPDATE ---');
+            console.log(gameState);
+            const players = gameState.players
+            for (let i = 0; i < players.length; i++) {
+                console.log('Cur id: ', players[i].id)
+                if (players[i].id == socketId) {
+                    heldCardElem.textContent = players[i].card
+                    break;
+                }
+            }
+            dealerElem.textContent = gameState.dealerIndex
+            currentTurnElem.textContent = gameState.currentTurnIndex
+        };
 
+        socket.on('gameStateUpdate', updateGameState);
         socket.on('joinSuccess', updateLobby);
         socket.on('lobbyUpdate', updateLobby);
         socket.on('joinError', (message) => alert(message));

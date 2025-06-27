@@ -85,15 +85,17 @@ class Game {
         return {
             // We don't send the full player objects with methods, just the data.
             players: this.players.map(p => ({
+                id: p.id,
                 name: p.name,
                 lives: p.lives,
                 isOut: p.isOut,
                 // We only send the card if it's the current user, or for debugging.
                 // For now, let's send it for everyone to make testing easy.
-                card: p.getCard(),
+                card: p.getCard().toString(),
             })),
+            dealerIndex: this.dealerIndex,
             currentTurnIndex: this.currentTurnIndex,
-            lastTurnIndex: this.dealerIndex + (this.playerCount - 1) % this.playerCount
+            lastTurnIndex: (this.dealerIndex + (this.playerCount - 1)) % this.playerCount
             // You can add more state here later, like 'gamePhase: "SWAPPING"'
         };
     }

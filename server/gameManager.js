@@ -52,6 +52,10 @@ export function startGame(roomId, startingLives, callback) {
     // Begin first round. Each player receives their card and first dealer index is set
     room.gameInstance.startRound();
 
+    
+
+    const curGameState = room.gameInstance.getGameState();
+    console.log('Before callback check. Game state: ', curGameState)
     // Send the lobbyData back, including the updated gameInstance information.
-    callback({ succes: true, gameState: room.gameInstance.getGameState() })
+    callback({ success: true, gameState: curGameState })
 }

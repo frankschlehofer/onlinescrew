@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
             socket.emit('joinSuccess', response.lobbyData);
 
             // Broadcast the updated lobby data to everyone already in the room
-            socket.to(roomId).emit('lobbyUpdate', response.lobbyData);
+            io.to(roomId).emit('lobbyUpdate', response.lobbyData);
           } else {
             // Send an error if it failed
             socket.emit('joinError', response.message);
@@ -52,7 +52,11 @@ io.on('connection', (socket) => {
         console.log(`${roomId}'s game is starting`)
         startGame(roomId, startingLives, (response) => {
           if (response.success) {
-            socket.to(roomId).emit('gameStateUpdate', response.gameState);
+            console.log(`Start game successful. Sending ${response.gameState}`);
+            io.to(roomId).emit('gameStateUpdate', response.gameState);
+          }
+          else {
+            console.log('Start game failed')
           }
         })
     })
