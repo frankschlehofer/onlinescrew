@@ -25,6 +25,7 @@
     <p>Room ID: <b id="roomId"></b></p>
 
     <p>Card: <b id="heldCard"></b></p>
+    <p>Lives: <b id="lives"></b></p>
     <p>Current Turn: <b id="currentTurn"></b></p>
     <p>Current Dealer: <b id="dealer"></b></p>
 
@@ -52,6 +53,7 @@
         const startGameBtn = document.getElementById('startGameBtn')
 
         const heldCardElem = document.getElementById('heldCard')
+        const livesElem = document.getElementById('lives')
         const dealerElem = document.getElementById('dealer')
         const currentTurnElem = document.getElementById('currentTurn')
 
@@ -151,6 +153,7 @@
                 console.log('Cur id: ', players[i].id)
                 if (players[i].id == socketId) {
                     heldCardElem.textContent = players[i].card
+                    livesElem.textContent = players[i].lives
                 }
             }
             dealerElem.textContent = players[gameState.dealerIndex].name
@@ -159,10 +162,12 @@
                 if (gameState.currentTurnIndex == gameState.lastTurnIndex) {
                     deckCardBtn.style.display = 'block'
                     skipSwapBtn.style.display = 'block'
+                    swapCardBtn.style.display = 'none'
                 }
                 else {
                     swapCardBtn.style.display = 'block'
                     skipSwapBtn.style.display = 'block'
+                    deckCardBtn.style.display = 'none'
                 }
                 
             }

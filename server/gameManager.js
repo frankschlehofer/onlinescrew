@@ -62,8 +62,13 @@ export function startGame(roomId, startingLives, callback) {
 export function skipSwap(roomId, callback) {
     const room = activeGames.get(roomId);
 
-    room.gameInstance.advanceTurn();
-
+    if (room.gameInstance.isLastPlayer()) {
+        room.gameInstance.endRound()
+    }
+    else {
+        room.gameInstance.advanceTurn();
+    }
+    
     const curGameState = room.gameInstance.getGameState();
     // Send the lobbyData back, including the updated gameInstance information.
     callback({ success: true, gameState: curGameState })
@@ -83,8 +88,10 @@ export function swapCard(roomId, callback) {
 export function deckCard(roomId, callback) {
     const room = activeGames.get(roomId);
 
+    // We know that deck card can only happen on last turn
     room.gameInstance.deckCard();
-    room.gameInstance.advanceTurn();
+
+    room.gameInstance.endRound()
 
     const curGameState = room.gameInstance.getGameState();
     // Send the lobbyData back, including the updated gameInstance information.

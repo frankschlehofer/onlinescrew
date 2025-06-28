@@ -13,6 +13,7 @@ class Game {
         this.playersInCount = 0;
         this.dealerIndex = null;
         this.currentTurnIndex = null
+        this.lastTurnIndex = null;
         this.starting_lives = starting_lives;
     }
 
@@ -93,7 +94,7 @@ class Game {
             })),
             dealerIndex: this.dealerIndex,
             currentTurnIndex: this.currentTurnIndex,
-            lastTurnIndex: (this.dealerIndex + (this.playerCount - 1)) % this.playerCount
+            lastTurnIndex: this.lastTurnIndex
             // You can add more state here later, like 'gamePhase: "SWAPPING"'
         };
     }
@@ -118,56 +119,24 @@ class Game {
         console.log(`Deck pull: ${card.toString()}`);
     }
 
-    // Defines the round of swapping for the players. Begins at dealer and ends when everyone gets a chance
-    beginSwapping() {
-        // Loop through all players, starting at dealer
-        for (let i = 0; i < this.playerCount; i++) {
-            const index = (this.dealerIndex + i) % this.playerCount;
+    // Called after all players have swapped. Used for evaluation round loser(s), advancing dealer, and redealing
+    endRound() {
+        this.determineOutcome()
 
-            const player = this.players[index];
-            console.log('Current swapping index: ', index)
-            // Only if the player is still in prompt for swap
-            if (!player.isOut) {
-                // If it is the last player, they can swap with the deck
-                if (this.isLastPlayer(index)) {
-                    let choice = prompt(`Do you want to swap your ${player.card.toString()} with the deck? (y/n)`);
-                    if (choice = 'y') {
-                        const card = this.deck.deal();
-                        player.receiveCard(card)
-                        console.log(`Deck pull: ${card.toString()}`);
-                    }   
-                }
-                else {
-                    let choice = prompt(`Do you want to swap your ${player.card.toString()} with the next player? (y/n)` );
-                    if (choice == 'y') {
-                        let nextIndex = index + 1;
-                        let nextPlayer = this.players[nextIndex % this.playerCount]
-                        while (nextPlayer.isOut) {
-                            nextPlayer = this.players[++nextIndex % this.playerCount]
-                        }
-                        const temp = nextPlayer.card
-                        nextPlayer.receiveCard(player.card)
-                        player.receiveCard(temp)
-                        console.log(`Card received: ${temp.toString()}`);
-                    } 
-                }
-            }
-        }
-    }
+        // Check to see if one player remains here
 
-    // Method for controlling a singular action a player takes
-    processPlayerAction(actingPlayerIndex, action) {
-        // 'action' will be an object like { type: 'swap', targetIndex: 3 }
-        if (actingPlayerIndex !== this.currentTurnIndex) {
-            console.error("Not your turn!");
-            return; // It's not this player's turn to act.
+        if (!this.canRoundStart()) {
+            this.resetDeck();
         }
-    
-        // Logic for a single swap
-        console.log(`${this.players[actingPlayerIndex].name} is performing an action.`);
-    
-        // --- After processing, advance to the next player ---
-        this.advanceTurn();
+
+        this.advanceDealer()
+
+        // Deal one card to each player, starting at the current 'dealer'
+        this.dealCards();
+
+        // Log the hands to the console to check
+        this.players.forEach(p => console.log(`${p.card == null ? "" : `${this.players.indexOf(p)} : ${p.name} has ${p.card.toString()}`}`));
+
     }
 
     // Helper function to determine if the deck contains enough cards to start a round
@@ -216,6 +185,7 @@ class Game {
 
         // Turn begins at dealer index
         this.currentTurnIndex = this.dealerIndex
+        this.lastTurnIndex = (this.dealerIndex + (this.playerCount - 1)) % this.playerCount
     }
 
     advanceTurn() {
@@ -315,14 +285,8 @@ class Game {
         }
     }
 
-    
-
-    // Very smart function to determine of a player is before the dealer in the array/table arrangement
-    // Atleast I didnt chatgpt it
-    isLastPlayer(index) {
-        console.log('Last player? index/dealerindex', index, this.dealerIndex)
-        console.log('Last player?', (this.dealerIndex - 1) % this.playerCount)
-        if ((this.dealerIndex - 1) % this.playerCount == index || (this.dealerIndex == 0 && index == this.playerCount - 1)) {
+    isLastPlayer() {
+        if (this.lastTurnIndex == this.currentTurnIndex) {
             return true
         }
         return false
