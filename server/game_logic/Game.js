@@ -89,8 +89,6 @@ class Game {
                 name: p.name,
                 lives: p.lives,
                 isOut: p.isOut,
-                // We only send the card if it's the current user, or for debugging.
-                // For now, let's send it for everyone to make testing easy.
                 card: p.getCard().toString(),
             })),
             dealerIndex: this.dealerIndex,
@@ -98,6 +96,19 @@ class Game {
             lastTurnIndex: (this.dealerIndex + (this.playerCount - 1)) % this.playerCount
             // You can add more state here later, like 'gamePhase: "SWAPPING"'
         };
+    }
+
+    swapCard(actingPlayerIndex) {
+        const player = this.players[actingPlayerIndex];
+        let nextIndex = actingPlayerIndex + 1;
+        let nextPlayer = this.players[nextIndex % this.playerCount]
+        while (nextPlayer.isOut) {
+            nextPlayer = this.players[++nextIndex % this.playerCount]
+        }
+        const temp = nextPlayer.card
+        nextPlayer.receiveCard(player.card)
+        player.receiveCard(temp)
+        console.log(`Card received: ${temp.toString()}`);
     }
 
     // Defines the round of swapping for the players. Begins at dealer and ends when everyone gets a chance
@@ -198,6 +209,10 @@ class Game {
 
         // Turn begins at dealer index
         this.currentTurnIndex = this.dealerIndex
+    }
+
+    advanceTurn() {
+        this.currentTurnIndex = (this.currentTurnIndex + 1) % this.playerCount
     }
 
     // Core of the game logic. Determines who loses a life at the end of the round

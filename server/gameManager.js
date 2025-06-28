@@ -55,7 +55,16 @@ export function startGame(roomId, startingLives, callback) {
     
 
     const curGameState = room.gameInstance.getGameState();
-    console.log('Before callback check. Game state: ', curGameState)
+    // Send the lobbyData back, including the updated gameInstance information.
+    callback({ success: true, gameState: curGameState })
+}
+
+export function skipSwap(roomId, callback) {
+    const room = activeGames.get(roomId);
+
+    room.gameInstance.advanceTurn();
+
+    const curGameState = room.gameInstance.getGameState();
     // Send the lobbyData back, including the updated gameInstance information.
     callback({ success: true, gameState: curGameState })
 }
