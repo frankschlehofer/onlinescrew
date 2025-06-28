@@ -57,7 +57,7 @@
 
         const swapCardBtn = document.getElementById('swapCardBtn')
         const skipSwapBtn = document.getElementById('skipSwapBtn')
-        const deckCardBtn = document.getElementById('swapCardBtn')
+        const deckCardBtn = document.getElementById('deckCardBtn')
 
         socket.on('connect', () => {
             socketIdElem.textContent = socket.id;
@@ -116,6 +116,13 @@
             socket.emit('playerAction', { roomId, actionType });
         })
 
+        deckCardBtn.addEventListener('click', () => {
+            const roomId = roomIdElem.textContent
+            const actionType = 'deck';
+            console.log('Emitting deckCard event:', { roomId, actionType });
+            socket.emit('playerAction', { roomId, actionType });
+        })
+
         const updateLobby = (lobbyData) => {
             console.log('Lobby updated!', lobbyData);
             roomIdElem.textContent = lobbyData.roomId;
@@ -149,12 +156,20 @@
             dealerElem.textContent = players[gameState.dealerIndex].name
             currentTurnElem.textContent = players[gameState.currentTurnIndex].name
             if (socketId == players[gameState.currentTurnIndex].id) {
-                deckCardBtn.style.display = 'block'
-                skipSwapBtn.style.display = 'block'
+                if (gameState.currentTurnIndex == gameState.lastTurnIndex) {
+                    deckCardBtn.style.display = 'block'
+                    skipSwapBtn.style.display = 'block'
+                }
+                else {
+                    swapCardBtn.style.display = 'block'
+                    skipSwapBtn.style.display = 'block'
+                }
+                
             }
             else {
                 deckCardBtn.style.display = 'none'
                 skipSwapBtn.style.display = 'none'
+                swapCardBtn.style.display = 'none'
             }
         };
 

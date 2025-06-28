@@ -72,7 +72,18 @@ export function skipSwap(roomId, callback) {
 export function swapCard(roomId, callback) {
     const room = activeGames.get(roomId);
 
-    room.gameInstance.swapCard(room.gameInstance.currentTurnIndex);
+    room.gameInstance.swapCard();
+    room.gameInstance.advanceTurn();
+
+    const curGameState = room.gameInstance.getGameState();
+    // Send the lobbyData back, including the updated gameInstance information.
+    callback({ success: true, gameState: curGameState })
+}
+
+export function deckCard(roomId, callback) {
+    const room = activeGames.get(roomId);
+
+    room.gameInstance.deckCard();
     room.gameInstance.advanceTurn();
 
     const curGameState = room.gameInstance.getGameState();

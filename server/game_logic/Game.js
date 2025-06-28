@@ -98,9 +98,9 @@ class Game {
         };
     }
 
-    swapCard(actingPlayerIndex) {
-        const player = this.players[actingPlayerIndex];
-        let nextIndex = actingPlayerIndex + 1;
+    swapCard() {
+        const player = this.players[this.currentTurnIndex];
+        let nextIndex = this.currentTurnIndex + 1;
         let nextPlayer = this.players[nextIndex % this.playerCount]
         while (nextPlayer.isOut) {
             nextPlayer = this.players[++nextIndex % this.playerCount]
@@ -109,6 +109,13 @@ class Game {
         nextPlayer.receiveCard(player.card)
         player.receiveCard(temp)
         console.log(`Card received: ${temp.toString()}`);
+    }
+
+    deckCard() {
+        const player = this.players[this.currentTurnIndex];
+        const card = this.deck.deal();
+        player.receiveCard(card)
+        console.log(`Deck pull: ${card.toString()}`);
     }
 
     // Defines the round of swapping for the players. Begins at dealer and ends when everyone gets a chance
