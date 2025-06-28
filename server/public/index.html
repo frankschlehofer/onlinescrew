@@ -109,6 +109,13 @@
             socket.emit('playerAction', { roomId, actionType });
         })
 
+        swapCardBtn.addEventListener('click', () => {
+            const roomId = roomIdElem.textContent
+            const actionType = 'swap';
+            console.log('Emitting swapCard event:', { roomId, actionType });
+            socket.emit('playerAction', { roomId, actionType });
+        })
+
         const updateLobby = (lobbyData) => {
             console.log('Lobby updated!', lobbyData);
             roomIdElem.textContent = lobbyData.roomId;

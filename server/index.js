@@ -6,7 +6,7 @@ import http from 'http';
 import { Server } from 'socket.io'
 
 import Game from './game_logic/Game.js';
-import { createGame, joinGame, startGame, skipSwap } from './gameManager.js';
+import { createGame, joinGame, startGame, skipSwap, swapCard } from './gameManager.js';
 
 // Extract necessary environment variables
 dotenv.config()
@@ -72,6 +72,17 @@ io.on('connection', (socket) => {
             }
             else {
               console.log('Skip swap failed')
+            } 
+          })
+        }
+        else if (actionType == 'swap') {
+          swapCard(roomId, (response) => {
+            if (response.success) {
+              console.log(`Card Swapped. Sending ${response.gameState}`);
+              io.to(roomId).emit('gameStateUpdate', response.gameState);
+            }
+            else {
+              console.log('Swap Card failed')
             } 
           })
         }
