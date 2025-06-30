@@ -218,6 +218,11 @@ class Game {
                 this.removePlayer(p);
             });
             console.log(`QUAD ${quadRank}s`)
+            return {
+                type: 'QUAD_ELIMINATION',
+                log: `QUAD ${quadRank}s!`,
+                losers: quadedPlayers.map(l => l.id)
+            };
         }
         // Determine trips
         else if (counts.includes(3)) {
@@ -233,6 +238,11 @@ class Game {
     
             const loserNames = losers.map(l => l.name).join(', ');
             console.log(`TRIP ${tripRank}s! The player(s) with the lowest lives (${loserNames}) lost a life.`)
+            return {
+                type: 'TRIP_OUTCOME',
+                log: `TRIP ${tripRank}s! The player(s) with the lowest lives (${loserNames}) lost a life.`,
+                losers: losers.map(l => l.id)
+            };
         }
         // Default case. Lowest card loses aside from pairs
         else {
@@ -240,6 +250,7 @@ class Game {
             if (unsafePlayers.length === 0) {
                 // This happens if all players are paired up (e.g., two pairs in a 4-player game).
                 console.log("All players were safe. The round is a draw.") 
+                return { type: 'DRAW', log: "All players were safe. The round is a draw." };
             }
             else {
                 // Find the loser among the unsafe players.
@@ -251,6 +262,11 @@ class Game {
                 }
                 this.subtractLifeOrRemovePlayer(loser)
                 console.log(`${loser.name} had the lowest card (${loser.card.rank}) and loses a life.`)
+                return {
+                    type: 'LOWEST_CARD',
+                    log: `${loser.name} had the lowest card (${loser.card.rank}) and loses a life.`,
+                    loserId: loser.id
+                };
             }
         }
     }

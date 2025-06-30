@@ -28,6 +28,7 @@
     <p>Lives: <b id="lives"></b></p>
     <p>Current Turn: <b id="currentTurn"></b></p>
     <p>Current Dealer: <b id="dealer"></b></p>
+    <p id="outcomeMessage"></p>
 
     <button id="swapCardBtn" style="display: none;">Swap</button>
     <button id="skipSwapBtn" style="display: none;">Skip</button>
@@ -177,6 +178,26 @@
                 swapCardBtn.style.display = 'none'
             }
         };
+
+        // This listener is ALSO for starting a new round with fresh cards
+        socket.on('newRoundStarted', (gameState) => {
+            console.log("A new round has begun!");
+            // Clear any "outcome" message from the screen
+            document.getElementById('outcomeMessage').textContent = '';
+            updateGameState(gameState); // Then render the new board
+        });
+
+        // This listener is ONLY for showing the outcome announcement
+        socket.on('roundOutcome', (outcome) => {
+            console.log("Round outcome:", outcome.log);
+            // Display the outcome.log message prominently on the screen
+            const outcomeElem = document.getElementById('outcomeMessage');
+            outcomeElem.textContent = outcome.log;
+        });
+
+        socket.on('gameOver', ({ winnerName }) => {
+            alert(`Game Over! The winner is ${winnerName}!`);
+        });
 
         socket.on('gameStateUpdate', updateGameState);
         socket.on('joinSuccess', updateLobby);

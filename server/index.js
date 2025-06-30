@@ -6,7 +6,7 @@ import http from 'http';
 import { Server } from 'socket.io'
 
 import Game from './game_logic/Game.js';
-import { createGame, joinGame, startGame, skipSwap, swapCard, deckCard } from './gameManager.js';
+import { createGame, joinGame, startGame, handlePlayerAction } from './gameManager.js';
 
 // Extract necessary environment variables
 dotenv.config()
@@ -15,7 +15,7 @@ const port = process.env.PORT || 3000
 // Start express application and create server
 const app = express()
 const server = http.createServer(app)
-const io = new Server(server, {
+export const io = new Server(server, {
     cors: { origin: "*" } // Allow all connections for development
 });
 
@@ -62,41 +62,9 @@ io.on('connection', (socket) => {
     })
 
     socket.on('playerAction', ({ roomId, actionType }) => {
-        console.log(roomId)
-        console.log(actionType)
-        if (actionType == 'skip') {
-          skipSwap(roomId, (response) => {
-            if (response.success) {
-              console.log(`Swap skipped. Sending ${response.gameState}`);
-              io.to(roomId).emit('gameStateUpdate', response.gameState);
-            }
-            else {
-              console.log('Skip swap failed')
-            } 
-          })
-        }
-        else if (actionType == 'swap') {
-          swapCard(roomId, (response) => {
-            if (response.success) {
-              console.log(`Card Swapped. Sending ${response.gameState}`);
-              io.to(roomId).emit('gameStateUpdate', response.gameState);
-            }
-            else {
-              console.log('Swap Card failed')
-            } 
-          })
-        }
-        else if (actionType == 'deck') {
-          deckCard(roomId, (response) => {
-            if (response.success) {
-              console.log(`Card Decked. Sending ${response.gameState}`);
-              io.to(roomId).emit('gameStateUpdate', response.gameState);
-            }
-            else {
-              console.log('Deck Card failed')
-            } 
-          })
-        }
+      console.log(`Received action in ${roomId}: ${actionType}`);
+      // Centralize the logic in the game manager
+      handlePlayerAction(roomId, actionType);  
     })
 
     socket.on('disconnect', () => {

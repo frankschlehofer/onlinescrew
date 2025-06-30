@@ -1,6 +1,10 @@
 // gameManager.js
 
 import Game from './game_logic/Game.js'
+import { io } from './index.js';
+
+// A simple helper that lets us use 'await delay(ms)' to pause execution
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // A mapping from unique game id's to game instances. Used to track all running games
 const activeGames = new Map();
@@ -59,41 +63,52 @@ export function startGame(roomId, startingLives, callback) {
     callback({ success: true, gameState: curGameState })
 }
 
-export function skipSwap(roomId, callback) {
+export function handlePlayerAction(roomId, actionType) {
     const room = activeGames.get(roomId);
+    if (!room || !room.gameInstance) return;
+    const game = room.gameInstance;
 
-    if (room.gameInstance.isLastPlayer()) {
-        room.gameInstance.endRound()
+    // Perform the requested action
+    if (actionType === 'swap') {
+        game.swapCard();
+    } else if (actionType === 'deck') {
+        game.deckCard();
+    } // 'skip' does nothing to the cards, just advances turn
+
+    // After the action, check if the round should end.
+    if (game.isLastPlayer()) {
+        // The round is over! Start the timed sequence instead of just advancing the turn.
+        executeEndOfRoundSequence(roomId);
+    } else {
+        // The round is not over, just advance the turn and send a normal update.
+        game.advanceTurn();
+        io.to(roomId).emit('gameStateUpdate', game.getGameState());
     }
-    else {
-        room.gameInstance.advanceTurn();
-    }
-    
-    const curGameState = room.gameInstance.getGameState();
-    // Send the lobbyData back, including the updated gameInstance information.
-    callback({ success: true, gameState: curGameState })
 }
 
-export function swapCard(roomId, callback) {
+
+async function executeEndOfRoundSequence(roomId) {
+    if (!activeGames.has(roomId)) return;
+
     const room = activeGames.get(roomId);
+    const game = room.gameInstance;
 
-    room.gameInstance.swapCard();
-    room.gameInstance.advanceTurn();
+    console.log(`[Sequence] Starting end-of-round for room ${roomId}`);
 
-    const curGameState = room.gameInstance.getGameState();
-    // Send the lobbyData back, including the updated gameInstance information.
-    callback({ success: true, gameState: curGameState })
-}
+    // The final action has just happened. Let's send one last update so
+    // everyone sees the final card layout before the reveal.
+    io.to(roomId).emit('gameStateUpdate', game.getGameState());
+    await delay(2000); // Wait 2 seconds for players to see the final cards.
 
-export function deckCard(roomId, callback) {
-    const room = activeGames.get(roomId);
+    const outcome = game.determineOutcome(); // This now returns our result object
+    io.to(roomId).emit('roundOutcome', outcome); // Send a NEW, specific event for the outcome
+    await delay(4000); // A longer pause for the result to sink in.
 
-    // We know that deck card can only happen on last turn
-    room.gameInstance.deckCard();
-
-    room.gameInstance.endRound()
-
-    const curGameState = room.gameInstance.getGameState();
-    // Send the lobbyData back, including the updated gameInstance information.
-    callback({ success: true, gameState: curGameState })
+    if (game.playersInCount <= 1) {
+        const winner = game.determineWinner();
+        io.to(roomId).emit('gameOver', { winnerName: winner.name });
+    } else {
+        game.startRound(); // This deals new cards and resets turns
+        io.to(roomId).emit('newRoundStarted', game.getGameState());
+    }
 }
