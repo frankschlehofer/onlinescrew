@@ -107,9 +107,11 @@ class Game {
             nextPlayer = this.players[++nextIndex % this.playerCount]
         }
         const temp = nextPlayer.card
-        nextPlayer.receiveCard(player.card)
-        player.receiveCard(temp)
-        console.log(`Card received: ${temp.toString()}`);
+        if (temp.getRankNum() != 13) {
+            nextPlayer.receiveCard(player.card)
+            player.receiveCard(temp)
+            console.log(`Card received: ${temp.toString()}`);
+        }
     }
 
     deckCard() {
