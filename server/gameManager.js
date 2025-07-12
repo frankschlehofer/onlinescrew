@@ -28,7 +28,7 @@ export function createGame(hostSocket, playerName, callback) {
     activeGames.set(roomId, room);
     console.log(`[Game Manager] New room created by ${hostSocket.id}: ${roomId}`);
     // Send the new room ID back
-    callback({ roomId }); 
+    callback({ success: true, lobbyData: room }); 
 }
 
 export function joinGame(socket, roomId, playerName, callback) {

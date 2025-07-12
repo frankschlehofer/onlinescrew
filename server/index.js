@@ -26,7 +26,9 @@ io.on('connection', (socket) => {
     // Creation of room by a user
     socket.on('createRoom', ({ playerName }) => {
         createGame(socket, playerName, (response) => {
-          socket.emit('roomCreated', response);
+          if (response.success) {
+            socket.emit('lobbyUpdate', response.lobbyData);
+        }
         });
     });
 
