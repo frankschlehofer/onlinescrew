@@ -5,7 +5,6 @@ import dotenv from 'dotenv'
 import http from 'http';
 import { Server } from 'socket.io'
 
-import Game from './game_logic/Game.js';
 import { createGame, joinGame, startGame, handlePlayerAction } from './gameManager.js';
 
 // Extract necessary environment variables
