@@ -18,7 +18,7 @@ export function createGame(hostSocket, playerName, callback) {
     hostSocket.join(roomId); 
 
     const room = {
-        roomId,
+        roomId: roomId,
         hostId: hostSocket.id,
         players: [{ id: hostSocket.id, name: playerName }],
         state: 'LOBBY',
@@ -55,12 +55,12 @@ export function startGame(roomId, startingLives, callback) {
 
     // Begin first round. Each player receives their card and first dealer index is set
     room.gameInstance.startRound();
+    room.state = 'IN_PROGRESS'; 
 
+    const combinedState = getRoomState(room);
     
-
-    const curGameState = room.gameInstance.getGameState();
     // Send the lobbyData back, including the updated gameInstance information.
-    callback({ success: true, gameState: curGameState })
+    callback({ success: true, gameState: combinedState })
 }
 
 export function handlePlayerAction(roomId, actionType) {
@@ -82,7 +82,7 @@ export function handlePlayerAction(roomId, actionType) {
     } else {
         // The round is not over, just advance the turn and send a normal update.
         game.advanceTurn();
-        io.to(roomId).emit('gameStateUpdate', game.getGameState());
+        io.to(roomId).emit('gameStateUpdate', getRoomState(room));
     }
 }
 
@@ -97,7 +97,7 @@ async function executeEndOfRoundSequence(roomId) {
 
     // The final action has just happened. Let's send one last update so
     // everyone sees the final card layout before the reveal.
-    io.to(roomId).emit('gameStateUpdate', game.getGameState());
+    io.to(roomId).emit('gameStateUpdate', getRoomState(room));
     await delay(2000); // Wait 2 seconds for players to see the final cards.
 
     const outcome = game.determineOutcome(); // This now returns our result object
@@ -109,6 +109,25 @@ async function executeEndOfRoundSequence(roomId) {
         io.to(roomId).emit('gameOver', { winnerName: winner.name });
     } else {
         game.startRound(); // This deals new cards and resets turns
-        io.to(roomId).emit('newRoundStarted', game.getGameState());
+        io.to(roomId).emit('newRoundStarted', getRoomState(room));
     }
+}
+
+function getRoomState(room) {
+    const state = {
+        roomId: room.roomId,
+        hostId: room.hostId,
+        state: room.state,
+    };
+
+    if (room.gameInstance) {
+        // If the game has started, merge the game engine's state into our object.
+        // The '...' spread operator copies all properties from getGameState() into our state object.
+        Object.assign(state, room.gameInstance.getGameState());
+    } else {
+        // If the game hasn't started, just include the lobby player list.
+        state.players = room.players;
+    }
+
+    return state;
 }

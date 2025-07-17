@@ -95,7 +95,6 @@ class Game {
             dealerIndex: this.dealerIndex,
             currentTurnIndex: this.currentTurnIndex,
             lastTurnIndex: this.lastTurnIndex
-            // You can add more state here later, like 'gamePhase: "SWAPPING"'
         };
     }
 

@@ -28,7 +28,7 @@ function App() {
       }
     };
 
-    // --- SIMPLIFIED LISTENERS ---
+  
     // Both creating/joining a lobby AND in-game actions will trigger a state update.
     socket.on('lobbyUpdate', handleStateUpdate);
     socket.on('gameStateUpdate', handleStateUpdate);
@@ -44,7 +44,7 @@ function App() {
     };
   }, []); // The empty array ensures this effect runs only once.
 
-  // --- HANDLER FUNCTIONS ---
+  // Handler functions
   const handleCreateGame = () => {
     if (playerName) socket.emit('createRoom', { playerName });
     else alert('Please enter a name first!');
