@@ -266,7 +266,7 @@ class Game {
                 return {
                     type: 'LOWEST_CARD',
                     log: `${loser.name} had the lowest card (${loser.card.rank}) and loses a life.`,
-                    loserId: loser.id
+                    losers: loser.id
                 };
             }
         }

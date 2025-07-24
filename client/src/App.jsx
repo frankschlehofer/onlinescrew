@@ -15,19 +15,12 @@ function App() {
   // State for the user input fields in the join/create form.
   const [playerName, setPlayerName] = useState('');
   const [roomInput, setRoomInput] = useState('');
+
+  const [outcomeMessage, setOutcomeMessage] = useState('');
   
   // This effect hook runs only once to set up all socket listeners.
   useEffect(() => {
     // This single handler is now the source of truth for the lobby and game state.
-    const handleStateUpdate = (data) => {
-      console.log("State updated!", data);
-      setGameState(data);
-      // If we get a roomId back, update our input field for easy sharing.
-      if (data.roomId) {
-        setRoomInput(data.roomId);
-      }
-    };
-
   
     socket.on('lobbyUpdate', handleStateUpdate);
     socket.on('gameStateUpdate', handleStateUpdate);
@@ -52,6 +45,16 @@ function App() {
   }, []); // The empty array ensures this effect runs only once.
 
   // Handler functions
+
+  const handleStateUpdate = (data) => {
+    console.log("State updated!", data);
+    setGameState(data);
+    // If we get a roomId back, update our input field for easy sharing.
+    if (data.roomId) {
+      setRoomInput(data.roomId);
+    }
+  };
+  
   const handleCreateGame = () => {
     if (playerName) socket.emit('createRoom', { playerName });
     else alert('Please enter a name first!');
@@ -69,16 +72,22 @@ function App() {
     }
   };
 
-  const handleRoundOutcome = () => {
-
+  // Receives end of round information of the form: type, log, losers
+  const handleRoundOutcome = (outcome) => {
+    console.log("Round outcome:", outcome.log);
+    setOutcomeMessage(outcome.log); // Display the outcome message
   };
 
   const handleGameOver = () => {
 
   }
 
-  const handleNewRound = () => {
-    
+  // Handler for updating game state when a new round is starting. Currently just updates game state, but in the future
+  // will do more
+  const handleNewRound = (newGameState) => {
+    console.log("New round is starting!", newGameState);
+    setOutcomeMessage('')
+    handleStateUpdate(newGameState)
   }
 
   // A single handler for all player actions during their turn.
@@ -147,18 +156,19 @@ function App() {
             <p>Lives: <b>{me.lives}</b></p>
             <hr />
             <h3>Game Status</h3>
+            {outcomeMessage && <h3 className="outcome-message">{outcomeMessage}</h3>}
             <p>Current Turn: <b>{gameState.players[gameState.currentTurnIndex].name}</b></p>
             <p>Dealer: <b>{gameState.players[gameState.dealerIndex].name}</b></p>
             <hr />
             {myTurn && <h3>Your Turn!</h3>}
             {/* Show action buttons only if it's my turn */}
-            {myTurn && !isLastPlayer && (
+            {myTurn && !outcomeMessage && !isLastPlayer && (
                 <div>
                     <button onClick={() => handlePlayerAction('swap')}>Swap with Next Player</button>
                     <button onClick={() => handlePlayerAction('skip')}>Skip</button>
                 </div>
             )}
-            {myTurn && isLastPlayer && (
+            {myTurn && !outcomeMessage && isLastPlayer && (
                 <div>
                     <button onClick={() => handlePlayerAction('deck')}>Take from Deck</button>
                     <button onClick={() => handlePlayerAction('skip')}>Skip</button>
