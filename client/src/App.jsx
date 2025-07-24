@@ -29,18 +29,25 @@ function App() {
     };
 
   
-    // Both creating/joining a lobby AND in-game actions will trigger a state update.
     socket.on('lobbyUpdate', handleStateUpdate);
     socket.on('gameStateUpdate', handleStateUpdate);
+    
 
     // Still handle errors separately for user feedback.
     socket.on('joinError', (message) => alert(message));
+
+    socket.on('roundOutcome', handleRoundOutcome)
+    socket.on('gameOver', handleGameOver)
+    socket.on('newRoundStarted', handleNewRound)
 
     // Cleanup listeners when the component unmounts.
     return () => {
       socket.off('lobbyUpdate', handleStateUpdate);
       socket.off('gameStateUpdate', handleStateUpdate);
       socket.off('joinError');
+      socket.off('roundOutcome', handleRoundOutcome)
+      socket.off('gameOver', handleGameOver)
+      socket.off('newRoundStarted', handleNewRound)
     };
   }, []); // The empty array ensures this effect runs only once.
 
@@ -61,6 +68,18 @@ function App() {
         socket.emit('startGame', { roomId: gameState.roomId, startingLives: 3 });
     }
   };
+
+  const handleRoundOutcome = () => {
+
+  };
+
+  const handleGameOver = () => {
+
+  }
+
+  const handleNewRound = () => {
+    
+  }
 
   // A single handler for all player actions during their turn.
   const handlePlayerAction = (actionType) => {
