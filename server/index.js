@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
         startGame(roomId, startingLives, (response) => {
           if (response.success) {
             console.log(`Start game successful. Sending ${response.gameState}`);
-            io.to(roomId).emit('gameStateUpdate', response.gameState);
+            io.to(roomId).emit('newRoundStarted', response.gameState);
           }
           else {
             console.log('Start game failed')

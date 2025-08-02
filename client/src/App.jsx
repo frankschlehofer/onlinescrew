@@ -68,7 +68,7 @@ function App() {
   const handleStartGame = () => {
     if (gameState?.roomId) {
         // The number of lives can be configured here later.
-        socket.emit('startGame', { roomId: gameState.roomId, startingLives: 3 });
+        socket.emit('startGame', { roomId: gameState.roomId, startingLives: 1 });
     }
   };
 
@@ -78,7 +78,9 @@ function App() {
     setOutcomeMessage(outcome.log); // Display the outcome message
   };
 
-  const handleGameOver = () => {
+  const handleGameOver = (winner) => {
+    console.log("Game Over. Winner: ", winner.name);
+    setOutcomeMessage(`Winner is: ${winner.name}`)
 
   }
 

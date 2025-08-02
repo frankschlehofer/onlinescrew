@@ -102,11 +102,14 @@ async function executeEndOfRoundSequence(roomId) {
 
     const outcome = game.determineOutcome(); // This now returns our result object
     io.to(roomId).emit('roundOutcome', outcome); // Send a NEW, specific event for the outcome
-    await delay(4000); // A longer pause for the result to sink in.
+    await delay(2000); // A longer pause for the result to sink in.
 
     if (game.playersInCount <= 1) {
         const winner = game.determineWinner();
-        io.to(roomId).emit('gameOver', { winnerName: winner.name });
+        io.to(roomId).emit('gameOver', winner);
+        await delay(2000);
+        room.state = "LOBBY";
+        io.to(roomId).emit('gameStateUpdate', getRoomState(room));
     } else {
         game.startRound(); // This deals new cards and resets turns
         io.to(roomId).emit('newRoundStarted', getRoomState(room));
