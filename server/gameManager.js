@@ -134,3 +134,30 @@ function getRoomState(room) {
 
     return state;
 }
+
+function broadcastGameState(roomId) {
+    if (!activeGames.has(roomId)) return;
+    const room = activeGames.get(roomId);
+    const game = room.gameInstance;
+
+    if (!game) return;
+
+    // Get the true, complete state from the game engine
+    const fullGameState = game.getGameState();
+
+    // Loop through each player in the room
+    room.players.forEach(player => {
+        // Create a personalized state for this specific player
+        const personalizedState = {
+            ...fullGameState, // Copy all the public game info
+            players: fullGameState.players.map(p => ({
+                ...p,
+                // If the player 'p' we are mapping is the one we're sending this to, include their card.
+                // Otherwise, send a placeholder indicating the card is hidden.
+                card: p.id === player.id ? p.card : { rank: '?', suit: 'Hidden' }
+            }))
+        };
+        // Send the personalized state to only this one player's socket
+        io.to(player.id).emit('gameStateUpdate', personalizedState);
+    });
+}
