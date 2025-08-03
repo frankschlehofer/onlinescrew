@@ -34,7 +34,6 @@ function App() {
 
     socket.on('roundOutcome', handleRoundOutcome)
     socket.on('gameOver', handleGameOver)
-    socket.on('newRoundStarted', handleNewRound)
 
     // Cleanup listeners when the component unmounts.
     return () => {
@@ -43,7 +42,6 @@ function App() {
       socket.off('joinError');
       socket.off('roundOutcome', handleRoundOutcome)
       socket.off('gameOver', handleGameOver)
-      socket.off('newRoundStarted', handleNewRound)
     };
   }, []); // The empty array ensures this effect runs only once.
 
@@ -145,7 +143,7 @@ function App() {
         <h2 className="text-4xl font-bold mb-4">Game Over!</h2>
         <h3 className="text-2xl">The winner is: <span className="text-green-400">{winner} 🏆</span></h3>
         {gameState?.hostId === socket.id && (
-            <button className="mt-6 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded" onClick={handleRestartGame}>Play Again</button>
+            <button className="mt-6 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded" onClick={handleStartGame}>Play Again</button>
         )}
     </div>
   );
@@ -159,7 +157,14 @@ function App() {
         if (winner) return renderGameOverScreen();
         if (!gameState) return renderJoinScreen();
         if (gameState.state === 'LOBBY') return renderLobbyScreen();
-        if (gameState.players) return <GameBoard gameState={gameState} myId={socket.id} />;
+        if (gameState.players) return (
+          <GameBoard 
+              gameState={gameState} 
+              myId={socket.id} 
+              onPlayerAction={handlePlayerAction}
+              outcomeMessage={outcomeMessage}
+          />
+      );
         return renderJoinScreen();
       })()}
     </div>
