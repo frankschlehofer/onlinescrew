@@ -29,3 +29,12 @@
 - [ ] **Grey Out Eliminated Players:** When a player is out of lives, make them visually distinct.
 
 ---
+
+### Phase 3: Make it Fun (Polish & Extras)
+
+*Add the "nice-to-have" features that make the game feel polished.*
+
+- [ ] **Add a Lobby Chat:** Let players talk to each other before the game starts.
+- [ ] **Add a "Copy Room Code" Button:** Make it easy for the host to invite friends.
+- [ ] **Add Sound Effects:** Simple sounds for key moments (swapping, losing a life, etc.).
+- [ ] **Deploy Online:** Get the game on a service like Render (backend) and Vercel (frontend) so your friends can play
