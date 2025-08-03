@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -23,10 +25,14 @@ a:hover {
 }
 
 body {
+  background-color: #1a202c; /* Dark background */
+  color: #e2e8f0; /* Light text */
+  font-family: 'Poppins', sans-serif;
   margin: 0;
+  padding: 2rem;
   display: flex;
-  place-items: center;
-  min-width: 320px;
+  justify-content: center;
+  align-items: center;
   min-height: 100vh;
 }
 

@@ -90,7 +90,7 @@ class Game {
                 name: p.name,
                 lives: p.lives,
                 isOut: p.isOut,
-                card: p.getCard().toString(),
+                card: p.getCard(),
             })),
             dealerIndex: this.dealerIndex,
             currentTurnIndex: this.currentTurnIndex,

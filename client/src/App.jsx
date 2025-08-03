@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
+import GameBoard from './GameBoard'; // Import the new component
+
 
 // Connect to your game server. Make sure the port is correct.
 // Use the address your server is running on.
@@ -17,6 +19,7 @@ function App() {
   const [roomInput, setRoomInput] = useState('');
 
   const [outcomeMessage, setOutcomeMessage] = useState('');
+  const [winner, setWinnerName] = useState('')
   
   // This effect hook runs only once to set up all socket listeners.
   useEffect(() => {
@@ -81,6 +84,7 @@ function App() {
   const handleGameOver = (winner) => {
     console.log("Game Over. Winner: ", winner.name);
     setOutcomeMessage(`Winner is: ${winner.name}`)
+    setWinnerName(winner.name)
 
   }
 
@@ -101,97 +105,71 @@ function App() {
 
   // --- RENDER LOGIC ---
 
-  // Helper function to render the initial join/create screen.
   const renderJoinScreen = () => (
-    <div className="join-form">
-      <h2>Join or Create a Game</h2>
+    <div className="text-center">
+      <h2 className="text-3xl font-bold mb-4">Join or Create a Game</h2>
       <input
         type="text"
+        className="p-2 rounded bg-gray-700 border border-gray-600 mb-4"
         value={playerName}
         onChange={(e) => setPlayerName(e.target.value)}
         placeholder="Enter your name"
       />
-      <hr />
-      <button onClick={handleCreateGame}>Create New Game</button>
-      <hr />
-      <input
-        type="text"
-        value={roomInput}
-        onChange={(e) => setRoomInput(e.target.value.toUpperCase())}
-        placeholder="Enter Room ID to Join"
-      />
-      <button onClick={handleJoinGame}>Join Game</button>
+      <div className="flex flex-col items-center gap-4">
+        <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded" onClick={handleCreateGame}>Create New Game</button>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            className="p-2 rounded bg-gray-700 border border-gray-600"
+            value={roomInput}
+            onChange={(e) => setRoomInput(e.target.value.toUpperCase())}
+            placeholder="Enter Room ID"
+          />
+          <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded" onClick={handleJoinGame}>Join Game</button>
+        </div>
+      </div>
     </div>
   );
 
-  // Helper function to render the lobby waiting screen.
   const renderLobbyScreen = () => (
-    <div className="lobby">
-      <h2>Lobby: {gameState.roomId}</h2>
-      <h3>Players:</h3>
-      <ul>
+    <div className="text-center">
+      <h2 className="text-3xl font-bold">Lobby: <span className="text-yellow-400">{gameState.roomId}</span></h2>
+      <h3 className="text-xl mt-4 mb-2">Players:</h3>
+      <ul className="list-none p-0">
         {gameState.players.map((player) => (
-          <li key={player.id}>
+          <li key={player.id} className="text-lg">
             {player.name} {player.id === gameState.hostId ? '👑 (Host)' : ''}
           </li>
         ))}
       </ul>
       {socket.id === gameState.hostId && (
-        <button onClick={handleStartGame}>Start Game</button>
+        <button className="mt-6 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded" onClick={handleStartGame}>Start Game</button>
       )}
     </div>
   );
 
-  // Helper function to render the main game board.
-  const renderGameBoard = () => {
-    const me = gameState.players.find(p => p.id === socket.id);
-    if (!me) return <p>Waiting...</p>;
-
-    const myTurn = gameState.currentTurnIndex !== null && gameState.players[gameState.currentTurnIndex].id === socket.id;
-    const isLastPlayer = gameState.currentTurnIndex === gameState.lastTurnIndex;
-
-    return (
-        <div className="game-board">
-            <h2>Game In Progress</h2>
-            <h3>Your Info</h3>
-            <p>Card: <b>{me.card}</b></p>
-            <p>Lives: <b>{me.lives}</b></p>
-            <hr />
-            <h3>Game Status</h3>
-            {outcomeMessage && <h3 className="outcome-message">{outcomeMessage}</h3>}
-            <p>Current Turn: <b>{gameState.players[gameState.currentTurnIndex].name}</b></p>
-            <p>Dealer: <b>{gameState.players[gameState.dealerIndex].name}</b></p>
-            <hr />
-            {myTurn && <h3>Your Turn!</h3>}
-            {/* Show action buttons only if it's my turn */}
-            {myTurn && !outcomeMessage && !isLastPlayer && (
-                <div>
-                    <button onClick={() => handlePlayerAction('swap')}>Swap with Next Player</button>
-                    <button onClick={() => handlePlayerAction('skip')}>Skip</button>
-                </div>
-            )}
-            {myTurn && !outcomeMessage && isLastPlayer && (
-                <div>
-                    <button onClick={() => handlePlayerAction('deck')}>Take from Deck</button>
-                    <button onClick={() => handlePlayerAction('skip')}>Skip</button>
-                </div>
-            )}
-        </div>
-    );
-  };
+  const renderGameOverScreen = () => (
+    <div className="text-center">
+        <h2 className="text-4xl font-bold mb-4">Game Over!</h2>
+        <h3 className="text-2xl">The winner is: <span className="text-green-400">{winner} 🏆</span></h3>
+        {gameState?.hostId === socket.id && (
+            <button className="mt-6 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded" onClick={handleRestartGame}>Play Again</button>
+        )}
+    </div>
+  );
   
-  // The main return statement for the App component.
   return (
-    <div>
-      <h1>Screw Your Neighbor</h1>
-      <p>Your Socket ID: {socket.id}</p>
-      <hr />
+    <div className="w-full max-w-5xl mx-auto flex flex-col items-center">
+      <h1 className="text-4xl font-bold mb-4">Screw Your Neighbor</h1>
+      <p className="mb-8">Your ID: {socket.id}</p>
       
-      {/* Conditional rendering based on the game's current phase/state */}
-      {!gameState && renderJoinScreen()}
-      {gameState?.state === 'LOBBY' && renderLobbyScreen()}
-      {gameState?.players && gameState?.state !== 'LOBBY' && renderGameBoard()}
-      
+      {(() => {
+        if (winner) return renderGameOverScreen();
+        if (!gameState) return renderJoinScreen();
+        if (gameState.state === 'LOBBY') return renderLobbyScreen();
+        if (gameState.players) return <GameBoard gameState={gameState} myId={socket.id} />;
+        return renderJoinScreen();
+      })()}
     </div>
   );
 }
