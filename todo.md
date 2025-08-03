@@ -1,8 +1,7 @@
-# Todo List
+# To-Do List: Screw Your Neighbor
 
-# Urgent
-* Experiment with edge cases
-* Stop duplicate names
+### DONE
 
-# Down the Road
-* Begin React Frontend
+- Core game logic and server work.
+- Players can create & join lobbies.
+- A basic React frontend is connected.
