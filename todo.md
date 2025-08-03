@@ -18,3 +18,14 @@
 - [ ] **Create Timed End-of-Round Sequence:** Use `async/await` to add pauses between the round outcome and the start of the next round for better pacing.
 
 ---
+
+### Phase 2: Frontend
+
+*Build the essential UI so the game is easy to understand and play.*
+
+- [ ] **Create a Visual Game Table:** Arrange players in a circle and visually highlight whose turn it is.
+- [ ] **Display Cards and Lives:** Show each player's card and their remaining lives (e.g., with heart icons ❤️).
+- [ ] **Show the Round Outcome:** Display a clear message on screen when a player loses a life.
+- [ ] **Grey Out Eliminated Players:** When a player is out of lives, make them visually distinct.
+
+---
