@@ -44,7 +44,7 @@ export function joinGame(socket, roomId, playerName, callback) {
     callback({ success: true, lobbyData: room });
 }
 
-export function startGame(roomId, startingLives, callback) {
+export function startGame(roomId, startingLives) {
 
     // Call Game constructor to initalize game object
     const room = activeGames.get(roomId);
@@ -57,10 +57,7 @@ export function startGame(roomId, startingLives, callback) {
     room.gameInstance.startRound();
     room.state = 'IN_PROGRESS'; 
 
-    const combinedState = getRoomState(room);
-    
-    // Send the lobbyData back, including the updated gameInstance information.
-    callback({ success: true, gameState: combinedState })
+    broadcastGameState(roomId)
 }
 
 export function handlePlayerAction(roomId, actionType) {
@@ -82,7 +79,7 @@ export function handlePlayerAction(roomId, actionType) {
     } else {
         // The round is not over, just advance the turn and send a normal update.
         game.advanceTurn();
-        io.to(roomId).emit('gameStateUpdate', getRoomState(room));
+        broadcastGameState(roomId)
     }
 }
 
@@ -112,7 +109,7 @@ async function executeEndOfRoundSequence(roomId) {
         io.to(roomId).emit('gameStateUpdate', getRoomState(room));
     } else {
         game.startRound(); // This deals new cards and resets turns
-        io.to(roomId).emit('newRoundStarted', getRoomState(room));
+        broadcastGameState(roomId)
     }
 }
 
@@ -143,7 +140,7 @@ function broadcastGameState(roomId) {
     if (!game) return;
 
     // Get the true, complete state from the game engine
-    const fullGameState = game.getGameState();
+    const fullGameState = getRoomState(room)
 
     // Loop through each player in the room
     room.players.forEach(player => {

@@ -88,14 +88,6 @@ function App() {
 
   }
 
-  // Handler for updating game state when a new round is starting. Currently just updates game state, but in the future
-  // will do more
-  const handleNewRound = (newGameState) => {
-    console.log("New round is starting!", newGameState);
-    setOutcomeMessage('')
-    handleStateUpdate(newGameState)
-  }
-
   // A single handler for all player actions during their turn.
   const handlePlayerAction = (actionType) => {
     console.log(`Sending action: ${actionType}`);
