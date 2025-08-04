@@ -22,7 +22,6 @@
 *Build the essential UI so the game is easy to understand and play.*
 
 - [ ] **Create a Visual Game Table:** Arrange players in a circle and visually highlight whose turn it is.
-- [ ] **Display Cards and Lives:** Show each player's card and their remaining lives (e.g., with heart icons ❤️).
 - [ ] **Show the Round Outcome:** Display a clear message on screen when a player loses a life.
 - [ ] **Grey Out Eliminated Players:** When a player is out of lives, make them visually distinct.
 
