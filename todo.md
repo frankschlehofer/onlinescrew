@@ -31,7 +31,6 @@
 
 ### Phase 3: Make it Fun (Polish & Extras)
 
-*Add the "nice-to-have" features that make the game feel polished.*
 
 - [ ] **Add a Lobby Chat:** Let players talk to each other before the game starts.
 - [ ] **Add a "Copy Room Code" Button:** Make it easy for the host to invite friends.
