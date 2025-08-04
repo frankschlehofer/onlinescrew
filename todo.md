@@ -14,7 +14,6 @@
 
 - [ ] **Handle Player Disconnects:** Make sure the game doesn't break if someone closes their browser.
 - [ ] **Implement All King Rules:** Add the logic for the "King Exception," "King Swap Block," and "King Deck Block."
-- [ ] **Add Server-Side Validation:** Prevent players from taking actions when it's not their turn.
 
 ---
 
