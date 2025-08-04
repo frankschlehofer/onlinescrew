@@ -24,6 +24,7 @@
 - [ ] **Create a Visual Game Table:** Arrange players in a circle and visually highlight whose turn it is.
 - [ ] **Show the Round Outcome:** Display a clear message on screen when a player loses a life.
 - [ ] **Grey Out Eliminated Players:** When a player is out of lives, make them visually distinct.
+- [ ] **General overhaul of frontend**
 
 ---
 
