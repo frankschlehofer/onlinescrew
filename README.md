@@ -31,7 +31,7 @@ Right now, the project is built with a modern JavaScript foundation:
 * **Backend:** Express and Node
 * **Real-time Communication:** WebSockets (to handle the live gameplay)
 * **Language:** JavaScript (ES Modules)
-* **Testing:** Jest (to make sure the game rules are solid and don't break)
+* **Testing:** Jest (to make sure the game rules are solid and don't break) and for general testing purposes
 
 ### The Road Ahead
 
