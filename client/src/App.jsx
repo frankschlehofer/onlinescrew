@@ -93,7 +93,7 @@ function App() {
   };
 
 
-  // --- RENDER LOGIC ---
+  // Render logic
 
   const renderJoinScreen = () => (
     <div className="text-center">
