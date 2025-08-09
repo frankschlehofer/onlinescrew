@@ -32,27 +32,7 @@ class Game {
         }
     }
 
-    /*
-     * This is where the core logic is
-     * -- Start game
-     * -- Loop game until one person remains
-     *      - Shuffle deck
-     *      - Loop dealing until deck dose not have suitable number of cards (one for each player plus one extra in the deck)
-     *          - For each round, first player (or dealer) has first choice of swapping for staying, loop until last player
-     *          - Last player can deck it or not
-     *          - Some general rules
-     *              - King is the highest card, Ace lowest
-     *              - A swap cannot be denied, unless the person has a King
-     *              - If the last person chooses to deck it, they can get blocked if they pull a king from the deck
-     *          - Determine loser(s) by following game rules
-     *              - Lowest card loses a life
-     *              - Paired cards are safe
-     *              - Trip cards, person(s) with lowest lives loses a life
-     *              - Quad cards, all people lose all lives, assuming this doesnt end the game
-     *              - In the event that all cards match except for a king, the king loses a life
-     * 
-     */
-
+    
     startRound() {
         console.log("New Round Begins. Dealer is advanced and cards are dealt");
 
