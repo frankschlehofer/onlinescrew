@@ -93,6 +93,7 @@ class Game {
         }
     }
 
+    /* Optional action for the last player in a round sequence to swap their card with a card currently at the top of the deck. */
     deckCard() {
         const player = this.players[this.currentTurnIndex];
         const card = this.deck.deal();
