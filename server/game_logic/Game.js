@@ -62,6 +62,7 @@ class Game {
         }
     }
 
+    /* Returns a full gamestate for the given room. */
     getGameState() {
         return {
             // We don't send the full player objects with methods, just the data.
