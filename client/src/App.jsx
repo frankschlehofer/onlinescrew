@@ -10,7 +10,7 @@ import GameBoard from './GameBoard'; // Import the new component
 const socket = io("http://localhost:3000");
 
 function App() {
-  // --- STATE MANAGEMENT ---
+  // State management
   // A single state object to hold all lobby and game-related data.
   const [gameState, setGameState] = useState(null); 
   
