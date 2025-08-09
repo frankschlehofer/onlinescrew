@@ -78,6 +78,8 @@ class Game {
         };
     }
 
+    /* Player to player action where the player who's turn it currently is to swap their card with the card of the next player
+        in the sequence. This action is not available for the last player */
     swapCard() {
         const player = this.players[this.currentTurnIndex];
         let nextIndex = this.currentTurnIndex + 1;
